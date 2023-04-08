@@ -54,7 +54,7 @@ Para comenzar a utilizar GoControl, siga los siguientes pasos:
 
 ```go
 
-go run main.go
+./gocontrol
 ```
 2. Abra un navegador web y navegue hasta localhost:8080 para acceder a la interfaz de usuario web de GoControl.
 
