@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoControl - Listeners</title>
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Tema oscuro con tonalidades verdes -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+        
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Modal, crear listener -->
+    <div class="modal fade" id="ModalNewListener" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="newListenerModalLabel">New Listener</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"  data-bs-toggle="modal" data-bs-target="#ModalNewListener">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form id="newListenerForm">
+
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-2 mx-3" id="addon-wrapping">Name</span>
+                        <input type="text" class="form-control col-sm-10" id="name" name="name" aria-label="Username" aria-describedby="addon-wrapping">
+                    </div>
+
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-2 mx-3" id="addon-wrapping">Type</span>
+                        <select class="form-control" id="type" name="type" required style="display: inline-block;" aria-label="">
+                            <option selected value="HTTP">HTTP</option>
+                            <option value="QUIC">QUIC</option>
+                        </select>
+                    </div>
+                                    
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-2 mx-3" id="addon-wrapping">IP</span>
+                        <input type="text" class="form-control" id="ip" name="ip" aria-describedby="addon-wrapping">
+                    </div>
+                
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-2 mx-3" id="addon-wrapping">Port</span>
+                        <input type="text" class="form-control" id="port" name="port" aria-describedby="addon-wrapping">
+                    </div>
+                                
+                </form>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secon  dary" data-dismiss="modal" id="cancel"  data-bs-toggle="modal" data-bs-target="#ModalNewListener">Close</button>
+                <button type="button" class="btn btn-success" id="save"  data-bs-toggle="modal" data-bs-target="#ModalNewListener">Save</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var saveButton = document.getElementById('save');
+            var cancelButton = document.getElementById('cancel');
+
+            saveButton.addEventListener('click', function() {
+                // Enviar el formulario por POST
+                var form = document.getElementById('newListenerForm');
+                var formData = new FormData(form);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', window.location.href);
+                xhr.send(formData);
+            });
+        });
+    </script>
+
+   
+    <div class="container-fluid">
+        <!-- Navbar vertical -->
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar nav-card mx-4 mt-3" style="min-height: 95vh;">
+                <div class="sidebar-sticky" >
+                    <h2 class="text-center mt-3" style="font-family: HACKED">GoControl</h2>
+                    <ul class="nav flex-column mt-3">
+                        <li class="nav-item">
+                            <i class="bi bi-bar-chart" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link active" style="display: inline-block; padding-left: 10px;" href="/">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-ear" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/listeners">Listeners</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-robot" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/agents">Agents</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        
+
+        <!-- Tables -->
+        <div class="col-md-9 mt-3">
+            <div class=""row>
+                <div class="col-md-12">
+                    <div class="card">
+                        <div  style="margin-left:10px">
+                            <h3 class="float-start" style="margin:10px">Listeners</h3>
+                            <!-- Boton a la derecha -->
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ModalNewListener" style="margin-top:10px; margin-right: 15px; float:right;"> 
+                                New listener
+                              </button>
+    <!--                             <a href="#" id="btt_new_listener" class="btn btn-success float-end" style="margin-top:10px; margin-right: 10px;">New Listener</a>
+ -->                        </div>
+                        <div  style="margin-left:10px; margin-right: 10px;">
+                            <table class="table table-borderless table-hover">
+                                <colgroup>
+                                    <col style="width: 100px;">
+                                    <col style="width: 100px;">
+                                    <col style="width: 100px;">
+                                    <col style="width: 100px;">
+                                  </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th style="border-bottom: 1px solid gray;">NAME</th>
+                                        <th style="border-bottom: 1px solid gray;">TYPE</th>
+                                        <th style="border-bottom: 1px solid gray;">SOSCKET</th>
+                                        <th style="border-bottom: 1px solid gray;">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{ range .Listeners}}
+                                        <tr>
+                                                <td onclick="window.location.href='/{{ .UUID }}';" style="cursor:pointer;">{{ .Name }}</td>
+                                                <td onclick="window.location.href='/{{ .UUID }}';" style="cursor:pointer;">{{ .Type }}</td>
+                                                <td onclick="window.location.href='/{{ .UUID }}';" style="cursor:pointer;">{{ .Socket }}</td>
+                                                <td>
+                                                    <div>
+                                                        <a href="{{ .UUID }}" class="btn btn-outline-info">Info</a>
+                                                        <a href="#" class="btn btn-outline-primary">Edit</a>
+                                                        <a href="#" class="btn btn-outline-danger">Delete</a>
+                                                    </div>
+                                                </td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<!--         <div class="row">
+            <div class="col-md-9 mt-3">
+                <h3 class="float-start">Listeners</h3>
+                <a href="#" class="btn btn-primary float-end" style="margin:0px">New Listener</a>
+                <table class="table table-striped table-dark table-bordered  table-hover">
+                    <thead>
+                        <tr>
+                            <th>UUID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Socket</th>
+                            <th>Info</th>
+                            <th>Edit</th>
+                            <th>State</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range .Listeners}}
+                            <tr>
+                                <td>{{ .UUID }}</td>
+                                <td>{{ .Name }}</td>
+                                <td>{{ .Type }}</td>
+                                <td>{{ .Socket }}</td>
+                                <td><button type="button" class="btn btn-outline-info">Info</button></td>
+                                <td><button type="button" class="btn btn-outline-primary">Edit</button></td>
+                                {{ if .Online }}
+                                    <td><button type="button" class="btn btn-outline-success">On</button></td>
+                                {{ else }}
+                                    <td><button type="button" class="btn btn-outline-danger">Off</button></td>
+                                {{ end }}
+                            </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div> -->
+    </div>     
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    </body>
+    </html>

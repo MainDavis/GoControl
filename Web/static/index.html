@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoControl</title>
+    
+     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <!-- Tema oscuro con tonalidades verdes -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/static/style.css">
+ 
+    
+</head>
+<body>
+
+    <div class="container-fluid">
+        <!-- Navbar vertical -->
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar nav-card mx-4 mt-3">
+                <div class="sidebar-sticky" >
+                    <h2 class="text-center mt-3" style="font-family: Hacked;">GoControl</h2>
+                    <ul class="nav flex-column mt-3">
+                        <li class="nav-item">
+                            <i class="bi bi-bar-chart" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link active" style="display: inline-block; padding-left: 10px;" href="/">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-ear" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/listeners">Listeners</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-robot" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/agents">Agents</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <!-- Gráficos -->
+            <div class="col-md-9 mt-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body" style="height: 50vh;">
+                                <canvas id="grafico1"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body" style="height: 50vh;">
+                                <canvas id="grafico2"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body" style="height: 43vh;">
+                                <canvas id="grafico3"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Archivos de Chart.js y Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+    <!-- Script para generar los gráficos -->
+    <script>
+        Chart.defaults.color = "#606369";
+        Chart.defaults.font.size = 14;
+        // Datos de prueba para los gráficos
+        var datos1 = {
+            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+            datasets: [{
+                label: 'Agents by OS',
+                data: [12, 19, 3, 5, 2],
+                backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                borderColor: 'rgba(0, 255, 0, 1)',
+                borderWidth: 1
+            }]
+        };
+        var datos2 = {
+            labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+            datasets: [{
+                label: 'Agents by Listener',
+                data: [50, 60, 70, 80, 90, 100, 110],
+                backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                borderColor: 'rgba(0, 255, 0, 1)',
+                borderWidth: 1
+            }]
+        };
+        var datos3 = {
+            labels: ['Rojo', 'Verde', 'Azul'],
+            datasets: [{
+                label: 'Beats in the last 24 hours',
+                data: [12, 19, 3],
+                backgroundColor: [
+                    'rgba(0, 255, 0, 0.5)',
+                    'rgba(0, 255, 0, 0.5)',
+                    'rgba(0, 255, 0, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(0, 255, 0, 1)',
+                    'rgba(0, 255, 0, 1)',
+                    'rgba(0, 255, 0, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        // Opciones para los gráficos
+        var opciones = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        };
+        
+        // Generar los gráficos
+        var grafico1 = new Chart(document.getElementById('grafico1'), {
+            type: 'bar',
+            data: datos1,
+            options: opciones
+        });
+        var grafico2 = new Chart(document.getElementById('grafico2'), {
+            type: 'bar',
+            data: datos2,
+            options: opciones
+        });
+        var grafico3 = new Chart(document.getElementById('grafico3'), {
+            type: 'line',
+            data: datos3,
+            options: opciones
+        });
+</script>
+</body>
+</html>

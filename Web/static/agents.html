@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoControl - Listeners</title>
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Tema oscuro con tonalidades verdes -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+        
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Modal, crear listener -->
+    <div class="modal fade" id="ModalNewAgent" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="newAgentModalLabel">New Agent</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"  data-bs-toggle="modal" data-bs-target="#ModalNewAgent">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form id="newAgentForm">
+
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-3 mx-3" id="addon-wrapping">Listener</span>
+                        <select class="form-control" id="UUID" name="UUID" required style="display: inline-block;" aria-label="">
+                            {{range .Listeners}}
+                                <option value="{{.UUID}}+{{.Type}}+{{.Socket}}">{{.Name}}</option>
+                            {{end}}
+                        </select>
+                    </div>                 
+
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-3 mx-3" id="addon-wrapping">Beacon</span>
+                        <input type="text" class="form-control col-sm-10" id="beacon" name="beacon" aria-label="Username" aria-describedby="addon-wrapping">
+                    </div>
+
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-3 mx-3" id="addon-wrapping">OS</span>
+                        <select class="form-control" id="os" name="os" required style="display: inline-block;" aria-label="">
+                            <option selected value="Windows">Windows</option>
+                            <option value="Linux">Linux</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group flex-nowrap row mb-3">
+                        <span class="input-group-text col-sm-3 mx-3" id="addon-wrapping">Arquitecture</span>
+                        <select class="form-control" id="arquitecture" name="arquitecture" required style="display: inline-block;" aria-label="">
+                            <option selected value="x64">x64</option>
+                            <option value="x86">x86</option>
+                        </select>
+                    </div>                                
+                </form>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secon  dary" data-dismiss="modal" id="cancel"  data-bs-toggle="modal" data-bs-target="#ModalNewAgent">Close</button>
+                <button type="button" class="btn btn-success" id="save"  data-bs-toggle="modal" data-bs-target="#ModalNewAgent">Compile</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var saveButton = document.getElementById('save');
+            var cancelButton = document.getElementById('cancel');
+
+            saveButton.addEventListener('click', function() {
+                // Enviar el formulario por POST
+                var form = document.getElementById('newAgentForm');
+                var formData = new FormData(form);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', window.location.href);
+                xhr.send(formData);
+            });
+        });
+    </script>
+
+   
+    <div class="container-fluid">
+        <!-- Navbar vertical -->
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar nav-card mx-4 mt-3" style="min-height: 95vh;">
+                <div class="sidebar-sticky" >
+                    <h2 class="text-center mt-3" style="font-family: HACKED">GoControl</h2>
+                    <ul class="nav flex-column mt-3">
+                        <li class="nav-item">
+                            <i class="bi bi-bar-chart" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link active" style="display: inline-block; padding-left: 10px;" href="/">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-ear" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/listeners">Listeners</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-robot" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/agents">Agents</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        
+
+        <!-- Tables -->
+        <div class="col-md-9 mt-3">
+            <div class=""row>
+                <div class="col-md-12">
+                    <div class="card">
+                        <div  style="margin-left:10px">
+                            <h3 class="float-start" style="margin:10px">Agents</h3>
+                            <!-- Boton a la derecha -->
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ModalNewAgent" style="margin-top:10px; margin-right: 15px; float:right;"> 
+                                New Agent
+                              </button>
+    <!--                             <a href="#" id="btt_new_listener" class="btn btn-success float-end" style="margin-top:10px; margin-right: 10px;">New Listener</a>
+ -->                        </div>
+                        <div  style="margin-left:10px; margin-right: 10px;">
+                            <table class="table table-borderless table-hover">
+                                <colgroup>
+                                    <col style="width: 100px;">
+                                    <col style="width: 100px;">
+                                    <col style="width: 100px;">
+                                    <col style="width: 100px;">
+                                  </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th style="border-bottom: 1px solid gray;">UUID</th>
+                                        <th style="border-bottom: 1px solid gray;">Listener</th>
+                                        <th style="border-bottom: 1px solid gray;">Hostname</th>
+                                        <th style="border-bottom: 1px solid gray;">OS</th>
+                                        <th style="border-bottom: 1px solid gray;">IP</th>
+                                        <th style="border-bottom: 1px solid gray;">Type</th>
+                                        <th style="border-bottom: 1px solid gray;">Is root?</th>
+                                        <th style="border-bottom: 1px solid gray;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{ range .Agents}}
+                                        <tr>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID }}';" style="cursor:pointer;">{{ .UUID }}</td>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID }}';" style="cursor:pointer;">{{ .ListenerUUID }}</td>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID}}';" style="cursor:pointer;">{{ .Hostname }}</td>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID }}';" style="cursor:pointer;">{{ .OS }}</td>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID }}';" style="cursor:pointer;">{{ .LocalIP }}</td>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID }}';" style="cursor:pointer;">{{ .Type }}</td>
+                                                <td onclick="window.location.href='/{{ .ListenerUUID }}';" style="cursor:pointer;">{{ .IsRoot }}</td>
+                                                <td>
+                                                    <div>
+                                                        <a href="#" class="btn btn-outline-danger">Delete</a>
+                                                    </div>
+                                                </td>
+                                        </tr>
+                                    {{ end }}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>     
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    </body>
+    </html>

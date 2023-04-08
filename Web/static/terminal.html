@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoControl - {{ .UUID }}</title>
+    
+     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <!-- Tema oscuro con tonalidades verdes -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/static/style_terminal.css">
+    
+</head>
+<body>
+
+    <div class="container-fluid">
+        <!-- Navbar vertical -->
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar nav-card mx-4 mt-3" style="min-height: 95vh;">
+                <div class="sidebar-sticky" >
+                    <h2 class="text-center mt-3" style="font-family: Hacked;">GoControl</h2>
+                    <ul class="nav flex-column mt-3">
+                        <li class="nav-item">
+                            <i class="bi bi-bar-chart" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link active" style="display: inline-block; padding-left: 10px;" href="/">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-ear" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/listeners">Listeners</a>
+                        </li>
+                        <li class="nav-item">
+                            <i class="bi bi-robot" style="display: inline-block; padding-left: 20px;"></i>
+                            <a class="nav-link" style="display: inline-block; padding-left: 10px;" href="/agents">Agents</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Contenido -->
+
+            <div class="col-md-9 mt-3">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body" style="height: 50vh;">
+                                <h3>Agentes conectados</h3>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">UUID</th>
+                                                <th scope="col">Hostname</th>
+                                                <th scope="col">IP</th>
+                                                <th scope="col">OS</th>
+                                                <th scope="col">Root</th>
+                                                <th scope="col">Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{ range .Agents }}
+                                            <tr>
+                                                <td style="max-width: 30vb  ;">{{ .UUID }}</td>
+                                                <td>{{ .Hostname }}/{{ .Username}}</td>
+                                                <td>{{ .LocalIP }}</td>
+                                                <td>{{ .OS }}</td>
+                                                <td>{{ .IsRoot }}</td>
+                                                <td><button class="btn btn-success" onclick="agent_uuid = '{{ .UUID }}'">Select</button></td>
+                                            </tr>
+                                            {{ end }}
+                                        </tbody>
+                                    </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card terminal" style="height: 43vh;">
+                                <div id="console" style="overflow-y:scroll;"></div>
+                                    <div style="display:flex;">
+                                        <span style="color: #00ff00; margin-left: 10px;"> > </span>
+                                        <input id="input" type="text" autofocus />
+                                    </div>
+                                    
+                                    <script>
+                                        const consoleElement = document.getElementById("console");
+                                        const inputElement = document.getElementById("input");
+
+                                        var agent_uuid = ""
+                                    
+                                        function appendToConsole(content) {
+                                            consoleElement.innerHTML += content + "\n";
+                                        }
+                                    
+                                        async function sendCommand(command) {
+                                            // Reemplaza esta URL con la dirección de tu API
+
+                                            if (agent_uuid == ""){
+
+                                                appendToConsole("No agent selected");
+                                                return
+
+                                            }
+
+                                            var uuid = "{{ .UUID }}";
+                                            const apiUrl = "http://"+"{{ .SOCKET }}"+"/"+ uuid + "/" + agent_uuid +"/terminal";
+
+                                            try {
+                                                await fetch(apiUrl, {
+                                                    method: "POST",
+                                                    headers: {
+                                                        "Content-Type": "text/plain"
+                                                    },
+                                                    body: command
+                                                });
+                                            } catch (error) {
+                                                appendToConsole(`Error: ${error.message}`);
+                                            }
+                                        }
+                                    
+                                        async function fetchOutput() {
+                                            // UUID
+                                            if (agent_uuid == ""){
+                                                return
+                                            }
+
+                                            var uuid = "{{ .UUID }}";
+                                            const apiUrl = "http://"+"{{ .SOCKET }}"+"/"+ uuid + "/" + agent_uuid +"/terminal";
+                                            const options = {
+                                                headers: {
+                                                'Origin': 'http://localhost:8080' // Reemplaza localhost:8080 por el dominio donde se aloja la página web
+                                                }
+                                            };
+
+                                            try {
+                                                const response = await fetch(apiUrl, options);
+                                                const output = await response.text();
+
+                                                if (output !== "NA NA") {
+                                                appendToConsole(output);
+                                                }
+                                            } catch (error) {
+                                                appendToConsole(`Error: ${error.message}`);
+                                            }
+                                            }
+
+                                        function pollOutput() {
+                                            fetchOutput();
+                                            setTimeout(pollOutput, 1000); // Ajusta el intervalo de sondeo según sea necesario
+                                        }
+                                    
+                                        inputElement.addEventListener("keydown", (event) => {
+                                            if (event.key === "Enter") {
+                                                event.preventDefault();
+                                                const command = inputElement.value.trim();
+                                                inputElement.value = "";
+                                    
+                                                if (command) {
+                                                    appendToConsole(`> ${command}`);
+                                                    sendCommand(command);
+                                                }
+                                            }
+                                        });
+                                    
+                                        pollOutput();
+                                    </script>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

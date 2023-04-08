@@ -1,0 +1,46 @@
+/* Estilos generales */
+body{
+  background: #16171b;
+}
+
+/* Estilos de la Navbar */
+.navbar {
+  min-height: 60px;
+}
+
+.nav-link {
+  font-size: 18px;
+  color: #00bc8c;
+}
+
+.nav-link:focus, .nav-link:hover {
+  color: greenyellow
+}
+
+/* Estilos card */
+.card {
+  border-radius: 5px;
+  background-color: #202125;
+  color: white;
+  border: none;
+}
+
+.nav-card{
+  border-radius: 5px;
+  background-color: #202125;  
+  color: white;
+  border: none;
+}
+
+/* Estilos de la tabla */
+table {
+  border-collapse: collapse;
+  color: #d9d9d9;
+  text-align: left;
+}
+
+.form-group label,
+.form-group input {
+  display: inline-block;
+  vertical-align: middle;
+}

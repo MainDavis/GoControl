@@ -1,0 +1,55 @@
+/* Estilos generales */
+body{
+    background: #16171b;
+  }
+  
+  /* Estilos de la Navbar */
+  .navbar {
+    min-height: 60px;
+  }
+  
+  .nav-link {
+    font-size: 18px;
+    color: #00bc8c;
+  }
+  
+  .nav-link:focus, .nav-link:hover {
+    color: greenyellow
+  }
+  
+  /* Estilos card */
+  .card {
+    border-radius: 5px;
+    background-color: #202125;
+    color: white;
+    border: none;
+  }
+  
+  .nav-card{
+    border-radius: 5px;
+    background-color: #202125;  
+    color: white;
+    border: none;
+  }
+  
+  /* Terminal */
+.terminal {
+    font-family: monospace;
+    background-color: black;
+    color: lime;
+    margin: 0;
+    padding: 0;
+}
+
+#console {
+    white-space: pre-wrap;
+    padding: 10px;
+}
+#input {
+    width: 100%;
+    background-color: black;
+    border: none;
+    outline: none;
+    color: lime;
+}
+  
