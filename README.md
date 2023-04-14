@@ -23,26 +23,22 @@ libcurl en C para la integración con bibliotecas de red
 Clonar el repositorio de GoControl:
 
 ```bash
-
 git clone https://github.com/user/GoControl.git
 ```
 Entrar en el directorio clonado e instalar las dependencias necesarias:
 
-```arduino
-
+```bash
 cd GoControl
 go get
 ```
 Compilar y generar el ejecutable:
 
-```go
-
+```bash
 go build -o gocontrol main.go
 ```
 Ejecutar GoControl:
 
 ```bash
-
 ./gocontrol
 ```
 
@@ -52,8 +48,7 @@ Para comenzar a utilizar GoControl, siga los siguientes pasos:
 
 1. Ejecute GoControl utilizando el siguiente comando:
 
-```go
-
+```bash
 ./gocontrol
 ```
 2. Abra un navegador web y navegue hasta localhost:8080 para acceder a la interfaz de usuario web de GoControl.
