@@ -227,7 +227,7 @@ func agentsHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 					"-lws2_32",
 					"-lbcrypt",
 					"-s",
-					//! "-mwindows",
+					"-mwindows",
 				)
 
 				out, err := cmd.CombinedOutput()

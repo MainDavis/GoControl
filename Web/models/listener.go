@@ -360,7 +360,6 @@ func handlerHTTP(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 		//? CORS
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		//* Get listener
 		listener, err := GetListenerByUUID(db, strings.Split(r.URL.Path, "/")[1])
