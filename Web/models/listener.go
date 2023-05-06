@@ -368,9 +368,6 @@ func handlerHTTP(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error al obtener el listener: " + err.Error())
 		}
 
-		//* Si el puerto es distinto al del listener, mostrar 404
-		print("Listener socket: " + listener.Socket + " - Request host: " + r.Host + "- Request URL: " + r.URL.Path + "\n")
-
 		if listener.Socket != r.Host {
 			http.NotFound(w, r)
 		}
@@ -466,6 +463,8 @@ func handlerHTTP(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 
 			if r.Method == "POST" {
 
+				print("Nuevo agente para el listener: " + listener.Name + "\n")
+
 				// Agent UUID
 				agent_uuid := strings.Split(r.URL.Path, "/")[2]
 
@@ -501,9 +500,6 @@ func handlerHTTP(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 					} else {
 						is_root = false
 					}
-
-					print("Hostname: " + hostname + " Username: " + username + " Architecture: " + architecture + " Local IP: " + local_ip + " Is Root: " + strconv.FormatBool(is_root) + "\n")
-
 					// Creo el agente
 					agent := Agent{
 						UUID:         agent_uuid,
